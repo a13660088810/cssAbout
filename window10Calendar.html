@@ -1,0 +1,145 @@
+<script src="https://unpkg.com/vue@next"> </script>
+<style>
+    body {
+        background-color: #393d3a;
+    }
+
+    .main {
+        display: flex;
+        justify-content: center;
+        padding-top: 200px;
+    }
+
+    .head {
+        display: flex;
+        width: 783px;
+    }
+
+    .outter {
+        overflow: hidden;
+        position: absolute;
+        width: 784px;
+        height: 560px;
+        top: 312px;
+    }
+
+    .containr {
+        display: flex;
+        width: 784px;
+        flex-wrap: wrap;
+        position: absolute;
+        z-index: 9;
+        background-color: transparent;
+    }
+
+    .hoverbox {
+        width: 320px;
+        height: 320px;
+        border-radius: 50%;
+        background-color: transparent;
+        position: absolute;
+        background: radial-gradient(rgba(255, 255, 255, 0.5)0%, rgba(255, 255, 255, 0.1)40%, transparent 60%);
+    }
+
+    .item,
+    .head>div {
+        width: 100px;
+        height: 100px;
+        margin: 6px;
+        position: relative;
+        background-color: #393d3a;
+        color: white;
+        font-size: 20px;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        box-sizing: border-box;
+        border: 2px solid #393d3a;
+    }
+
+    .item:hover {
+        outline: 3px solid #898989;
+    }
+
+    .item::after {
+        position: absolute;
+        content: '';
+        width: 107px;
+        height: 107px;
+        outline: 3px solid #393d3a;
+        left: -5px;
+        top: -5px;
+    }
+
+    .active {
+        outline: 2px solid rgb(8, 104, 180) !important;
+    }
+
+    .today {
+        background-color: #0078d7;
+    }
+
+    .future {
+        color: rgb(131, 131, 131)
+    }
+</style>
+<div id="app">
+    <div class="main">
+        <div class="head">
+            <div v-for="item in head"> {{item}}</div>
+        </div>
+        <div class="outter" ref="outter">
+            <div class="containr">
+                <div :class="['item',{'today':i==7,'active':active==i}]" v-for="(item,i) in 30" :key="i"
+                    @click="active=i">
+                    <span>{{item}}</span>
+                    <span>妇女节</span>
+                </div>
+                <div :class="['future','item',{'active':active==i+30}]" v-for="(item,i) in 5" :key="i"
+                    @click="active=i+30">
+                    <span>{{item}}</span>
+                    <span>妇女节</span>
+                </div>
+            </div>
+            <div :style={left:point.x,top:point.y} @mousemove="useMounse" class="hoverbox"></div>
+        </div>
+    </div>
+</div>
+<script>
+    const SHADOWWIDTH = 320
+    const SHADOWHIGHT = 320
+    const { createApp, ref, reactive, onMounted, onUnmounted } = Vue
+    const App = {
+        setup() {
+            const outter = ref(null)
+            const active = ref(null)
+            const head = ['一', '二', '三', '四', '五', '六', '日']
+            const point = reactive({
+                x: -9999, y: -9999
+            })
+            function useMounse(evt) {
+                const L = outter.value.offsetLeft
+                const T = outter.value.offsetTop
+                const W = outter.value.offsetWidth
+                const H = outter.value.offsetHeight
+                const { pageX, pageY } = evt
+                if (pageX < L-SHADOWWIDTH/2 || pageX > L + W+SHADOWWIDTH/2 || pageY < T-SHADOWHIGHT/2 || pageY > T + H+SHADOWHIGHT/2)return               
+                point.x = pageX - SHADOWWIDTH / 2 - L
+                point.y = pageY - SHADOWHIGHT / 2 - T
+            }
+            onMounted(() => {
+                window.addEventListener('mousemove', useMounse)
+            })
+            onUnmounted(() => {
+                window.removeEventListener('mousemove', useMounse)
+            })
+            return {
+                head, point, useMounse, active, outter
+            }
+        }
+    }
+    const app = createApp(App)
+    app.mount('#app')
+
+</script>
